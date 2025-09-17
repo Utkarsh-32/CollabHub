@@ -14,5 +14,5 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class TeamDetailsViewSet(viewsets.ModelViewSet):
     serializer_class = TeamMembersSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     queryset = TeamMembers.objects.all()

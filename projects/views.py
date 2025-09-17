@@ -1,6 +1,6 @@
 from projects.models import Projects, TeamMembers
-from projects.serializers import ProjectSerializer, TeamMembersSerializer
-from rest_framework import viewsets, permissions
+from projects.serializers import ProjectSerializer, TeamMembersSerializer, ApplySerializer
+from rest_framework import viewsets, permissions, generics
 from projects.permissions import IsOwnerOrReadOnly
 # Create your views here.
 
@@ -16,3 +16,7 @@ class TeamDetailsViewSet(viewsets.ModelViewSet):
     serializer_class = TeamMembersSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     queryset = TeamMembers.objects.all()
+
+class ApplyView(generics.CreateAPIView):
+    serializer_class = ApplySerializer
+    permission_classes = [permissions.IsAuthenticated]

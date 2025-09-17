@@ -17,3 +17,12 @@ class TeamMembersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TeamMembers
         fields = ['url' ,'project', 'owner', 'approved_members']
+
+class ApplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamMembers
+        fields = ['project']
+    def create(self, validated_data):
+        user = self.context['request'].user
+        project = validated_data['project']
+        return TeamMembers.objects.create(project=project, member=user, status='pending')

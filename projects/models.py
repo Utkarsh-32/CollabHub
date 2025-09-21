@@ -7,6 +7,8 @@ class Projects(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_projects', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     members_required = models.TextField()
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='joined_projects', through='TeamMembers')
 
@@ -22,3 +24,8 @@ class TeamMembers(models.Model):
 
     class Meta:
         unique_together = ['project', 'member']
+
+class RolesRequired(models.Model):
+    project = models.ForeignKey(Projects, related_name='roles_required', on_delete=models.CASCADE)
+    role = models.CharField(max_length=100)
+    count = models.PositiveBigIntegerField(default=1)

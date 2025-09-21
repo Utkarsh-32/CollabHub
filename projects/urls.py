@@ -1,9 +1,8 @@
 from rest_framework.routers import DefaultRouter
-from projects.views import ProjectViewSet, TeamDetailsViewSet
-from rest_framework_nested import routers
+from projects.views import ProjectViewSet, TeamMembersViewSet
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)
-router.register(r'teamdetails', TeamDetailsViewSet)
+router.register(r'team-members', TeamMembersViewSet, basename='teammembers')
 
 urlpatterns = router.urls

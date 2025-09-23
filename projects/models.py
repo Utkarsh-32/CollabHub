@@ -16,7 +16,8 @@ class TeamMembers(models.Model):
     STATUS_CHOICES = [
         ('pending', 'PENDING'),
         ('approved', 'APPROVED'),
-        ('rejected', 'REJECTED')
+        ('rejected', 'REJECTED'),
+        ('invited', 'INVITED')
     ]
     project = models.ForeignKey(Projects, related_name='team_members', on_delete=models.CASCADE)
     member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

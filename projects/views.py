@@ -1,11 +1,11 @@
 from projects.models import Projects, TeamMembers
-from projects.serializers import OwnerProjectSerializer, ApplySerializer, TeamMembersSerializer, ApplicantProjectSerializer, PublicProjectSerializer
-from rest_framework import viewsets, permissions, generics, filters, status
+from projects.serializers import OwnerProjectSerializer, ApplySerializer, TeamMembersSerializer, ApplicantProjectSerializer, PublicProjectSerializer, InviteSerializer
+from rest_framework import viewsets, permissions, filters, status
 from projects.permissions import IsOwnerOrReadOnly
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
+from django.contrib.auth import get_user_model
 # Create your views here.
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -19,6 +19,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return super().get_queryset().distinct()
     
     def get_serializer_class(self):
+        if self.action == 'invite':
+            return InviteSerializer
         if self.action == 'create':
             return OwnerProjectSerializer
         if self.action == 'list':
@@ -68,15 +70,42 @@ class ProjectViewSet(viewsets.ModelViewSet):
         projects = Projects.objects.filter(team_members__member=request.user, team_members__status='approved').exclude(owner=request.user)
         serializer = ApplicantProjectSerializer(projects, many=True, context={'request':request})
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated, IsOwnerOrReadOnly])
+    def invite(self, request, pk=None):
+        project = self.get_object()
+        user_to_invite = request.data.get('username')
+        if not user_to_invite:
+            return Response({'detail': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            member_to_invite = get_user_model().objects.get(username=user_to_invite)
+        except get_user_model().DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+        if TeamMembers.objects.filter(project=project, member=member_to_invite).exists():
+            return Response({'detail': 'This user is already part of the project or has an active application/invitation'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        TeamMembers.objects.create(project=project, member=member_to_invite, status='invited')
+        return Response({'detail': f'Invitation sent to {member_to_invite}'}, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_invitations(self, request):
+        project = Projects.objects.filter(team_members__member=request.user,
+                                          team_members__status='invited')
+        serializer = ApplicantProjectSerializer(project, many=True, context={'request':request})
+        return Response(serializer.data)
+
 
 class TeamMembersViewSet(viewsets.ModelViewSet):
     queryset = TeamMembers.objects.all()
     serializer_class = TeamMembersSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    http_method_names = ['get', 'patch', 'head', 'options']
     def get_queryset(self):
         user = self.request.user
-        owned_projects = Projects.objects.filter(owner=user)
-        return TeamMembers.objects.filter(project__in=owned_projects)
+        if self.action == 'list':
+            owned_projects = Projects.objects.filter(owner=user)
+            return TeamMembers.objects.filter(project__in=owned_projects).order_by('-id')
+        return TeamMembers.objects.all().order_by('-id')
     
     def update(self, request, *args, **kwargs):
         team_members_instance = self.get_object()
@@ -87,4 +116,30 @@ class TeamMembersViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['patch'], permission_classes=[permissions.IsAuthenticated])
+    def respond(self, request, pk=None):
+        invitation = self.get_object()
+        new_status = request.data.get('status')
+
+        if request.user != invitation.member:
+            return Response({'detail': 'You are not allowed to respond to this invitation'}, status=status.HTTP_403_FORBIDDEN)
         
+        if invitation.status != 'invited':
+            return Response({'detail': 'This invitation is no longer active'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if new_status not in ['approved', 'rejected']:
+            return Response({'detail': 'Invalid status provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        invitation.status = new_status
+        invitation.save()
+        serializer = self.get_serializer(invitation)
+        return Response(serializer.data)
+        
+class ProjectRequestsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TeamMembersSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        project_pk = self.kwargs['project_pk']
+        return TeamMembers.objects.filter(project__id=project_pk, status__in=['pending', 'invited'])

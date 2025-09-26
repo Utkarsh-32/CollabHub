@@ -1,1 +1,1 @@
-# CreatorHub
+# CollabHub

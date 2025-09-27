@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "projects",
+    "corsheaders",
     "django_filters",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -63,7 +64,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware"
+    "allauth.account.middleware.AccountMiddleware",
+    "corsheaders.middleware.CorsMiddleware"
 ]
 
 ROOT_URLCONF = "collabhub.urls"
@@ -153,3 +155,12 @@ REST_FRAMEWORK = {
 SITE_ID = 1
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

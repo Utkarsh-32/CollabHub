@@ -15,7 +15,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Projects.objects.all().order_by('-created_at')
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
-    search_fields = ['title', 'description', 'owner__username', 'roles_required__role']
+    search_fields = ['title', 'description', 'owner__username', 'owner__display_name', 'roles_required__role']
     ordering_fields = ['created_at', 'updated_at']
     
     def get_queryset(self):

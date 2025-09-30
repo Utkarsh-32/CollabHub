@@ -13,9 +13,10 @@ class OwnerProjectSerializer(serializers.HyperlinkedModelSerializer):
     roles_required = ProjectRoleSerializer(many=True)
     sent_invitations = serializers.SerializerMethodField()
     owner_image_url = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
     class Meta:
         model = Projects
-        fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'pending_requests', 'sent_invitations']
+        fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'pending_requests', 'sent_invitations', 'is_owner']
     def get_approved_members(self, obj):
         accepted = obj.team_members.filter(status='approved').exclude(member=obj.owner)
         return [{'id': acc.member.id, 'display_name': acc.member.display_name, 'image_url': acc.member.image.url} for acc in accepted]
@@ -44,6 +45,9 @@ class OwnerProjectSerializer(serializers.HyperlinkedModelSerializer):
     def get_owner_image_url(self, obj):
         image = obj.owner.image.url
         return image
+    def get_is_owner(self, obj):
+        user = self.context['request'].user
+        return obj.owner == user
     
     
 class ApplicantProjectSerializer(serializers.ModelSerializer):
@@ -53,9 +57,10 @@ class ApplicantProjectSerializer(serializers.ModelSerializer):
     roles_required = ProjectRoleSerializer(many=True, read_only=True)
     my_application_id = serializers.SerializerMethodField()
     owner_image_url = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
     class Meta:
         model = Projects
-        fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'my_status', 'my_application_id']
+        fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'my_status', 'my_application_id', 'is_owner']
     def get_approved_members(self, obj):
         approved = obj.team_members.filter(status='approved').exclude(member=obj.owner)
         return [{'id': tm.member.id, 'display_name': tm.member.display_name, 'image_url': tm.member.image.url} for tm in approved]
@@ -80,21 +85,30 @@ class ApplicantProjectSerializer(serializers.ModelSerializer):
     def get_owner_image_url(self, obj):
         image = obj.owner.image.url
         return image
+    def get_is_owner(self, obj):
+        user = self.context['request'].user
+        return obj.owner == user
 
 class PublicProjectSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.display_name')
     owner_image_url = serializers.SerializerMethodField()
     approved_members = serializers.SerializerMethodField()
     roles_required = ProjectRoleSerializer(many=True, read_only=True)
+    is_owner = serializers.SerializerMethodField()
     class Meta:
         model = Projects
-        fields = ['id', 'url', 'title', 'description','roles_required', 'owner','owner_image_url', 'approved_members']
+        fields = ['id', 'url', 'title', 'description','roles_required', 'owner','owner_image_url', 'approved_members', 'is_owner']
     def get_approved_members(self, obj):
         approved = obj.team_members.filter(status='approved').exclude(member=obj.owner)
         return [{'id': tm.member.id, 'display_name': tm.member.display_name, 'image_url': tm.member.image.url} for tm in approved]
     def get_owner_image_url(self, obj):
         image = obj.owner.image.url
         return image
+    def get_is_owner(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.owner == user
+        return False
     
 class TeamMembersSerializer(serializers.HyperlinkedModelSerializer):
     username = serializers.SerializerMethodField()

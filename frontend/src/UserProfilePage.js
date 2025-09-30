@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from "react";
-import {useParams, Link as RouterLink} from "react-router-dom";
-import axios from "axios";
+import {useParams, useNavigate} from "react-router-dom";
+import api from "./api/api";
 import { Container, Typography, CircularProgress, Box, AppBar, Toolbar, Button, Chip, Avatar } from '@mui/material';
 
 function UserProfilePage() {
     const { userId } = useParams();
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,7 +13,7 @@ function UserProfilePage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/api/users/${userId}/`);
+                const response = await api.get(`/users/${userId}/`);
                 setUser(response.data);
             } catch (err) {
                 setError('Failed to load user profile');
@@ -27,7 +28,7 @@ function UserProfilePage() {
         <Box>
             <AppBar position="static"><Toolbar><Typography variant="h6">CollabHub</Typography></Toolbar></AppBar>
             <Container maxWidth="md" sx={{mt:4}}>
-                <Button component={RouterLink} to="/">&larr; Back to Projects</Button>
+                <Button onClick={() => navigate(-1)}>&larr; Back </Button>
                 {loading && <CircularProgress sx={{mt:2}} />}
                 {error && <Typography color="error">{error}</Typography>}
                 {user && (

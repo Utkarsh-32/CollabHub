@@ -1,17 +1,19 @@
 import React, {useState, useEffect} from "react";
-import axios from 'axios';
+import api from "./api/api";
 import { 
   Container, ListItem, ListItemText,  List, AppBar, Box, CircularProgress,
   Toolbar, Typography,
-  TextField
+  TextField, Button
 } from '@mui/material';
-import { Link } from "react-router-dom";
+import { Link, Link as RouterLink} from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 function ProjectListPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { authToken, logout} = useAuth();
 
   useEffect(() => {
     setLoading(true);
@@ -19,7 +21,7 @@ function ProjectListPage() {
     const delayDebounceFn = setTimeout(() => {
       const fetchProjects = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/projects/', {params: {search:searchTerm}});
+        const response = await api.get('/projects/', {params: {search:searchTerm}});
         setProjects(response.data.results);
       } catch (err) {
         setError('Failed to load projects. Is the backend server running?');
@@ -37,9 +39,18 @@ function ProjectListPage() {
     <Box>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6">
+          <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
             CollabHub
           </Typography>
+          { authToken ? (
+            <Button color="inherit" onClick={logout}>
+              Logout
+            </Button>
+          ): (
+            <Button color="inherit" component={RouterLink} to="/login">
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -60,7 +71,7 @@ function ProjectListPage() {
           <List>
             {projects.map(project => (
               <Link to={`/projects/${project.id}`} key={project.id} style={{textDecoration:'none', color:'inherit'}}>
-              <ListItem button>
+              <ListItem button={true}>
                 <ListItemText
                   primary={project.title}
                   secondary={project.description} />

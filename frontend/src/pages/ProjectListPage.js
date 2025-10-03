@@ -1,19 +1,18 @@
-import React, {useState, useEffect} from "react";
-import api from "./api/api";
+import {useState, useEffect} from "react";
+import api from "../api/api";
 import { 
-  Container, ListItem, ListItemText,  List, AppBar, Box, CircularProgress,
-  Toolbar, Typography,
-  TextField, Button
+  Container, ListItem, ListItemText,  List, Box, CircularProgress,
+  Typography,
+  TextField,
 } from '@mui/material';
-import { Link, Link as RouterLink} from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function ProjectListPage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const { authToken, logout} = useAuth();
 
   useEffect(() => {
     setLoading(true);
@@ -37,22 +36,7 @@ function ProjectListPage() {
 
   return (
     <Box>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
-            CollabHub
-          </Typography>
-          { authToken ? (
-            <Button color="inherit" onClick={logout}>
-              Logout
-            </Button>
-          ): (
-            <Button color="inherit" component={RouterLink} to="/login">
-              Login
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
+      <Navbar />
 
       <Container maxWidth="md" sx={{mt: 4}}>
         <Typography variant="h4" component="h1" gutterBottom>

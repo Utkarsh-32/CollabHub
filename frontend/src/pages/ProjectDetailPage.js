@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import api from "./api/api";
-import UserSearch from "./UserSearch";
-import { useAuth } from "./context/AuthContext";
-
-// Import all necessary MUI components
+import api from "../api/api";
+import UserSearch from "../components/UserSearch";
+import { useAuth } from "../context/AuthContext";
 import {
-    Container, Typography, CircularProgress, AppBar, Box,
-    Toolbar, Button, Divider, List, ListItem, ListItemText, 
+    Container, Typography, CircularProgress, Box,
+    Button, Divider, List, ListItem, ListItemText, 
     ListItemAvatar, Avatar, Chip, Paper
 } from "@mui/material";
+import Navbar from "../components/Navbar";
 
 function ProjectDetailPage() {
     const { projectId } = useParams();
@@ -18,8 +17,6 @@ function ProjectDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // This function fetches the project data from the backend.
-    // We define it here so we can call it again to refresh the data after an action.
     const fetchProject = async () => {
         try {
             setLoading(true);
@@ -33,17 +30,15 @@ function ProjectDetailPage() {
         }
     };
 
-    // This useEffect hook runs once when the page loads to get the initial data.
     useEffect(() => {
         fetchProject();
     }, [projectId]);
 
-    // This function handles the API call when a user clicks "Apply".
     const handleApply = async () => {
         try {
             await api.post(`/projects/${projectId}/apply/`);
             alert('Application sent successfully!');
-            fetchProject(); // Refresh the data to show the new "pending" status
+            fetchProject();
         } catch (err) {
             alert(`Error: ${err.response?.data?.detail || 'An unknown error occurred.'}`);
         }
@@ -51,11 +46,7 @@ function ProjectDetailPage() {
 
     return (
         <Box>
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6">CollabHub</Typography>
-                </Toolbar>
-            </AppBar>
+            <Navbar />
             <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
                 <Button component={RouterLink} to="/">
                     &larr; Back to Projects
@@ -66,7 +57,6 @@ function ProjectDetailPage() {
                 
                 {project && (
                     <Box sx={{ mt: 2 }}>
-                        {/* --- Title and Apply Button Section --- */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                             <Typography variant="h4" component="h1">
                                 {project.title}
@@ -78,7 +68,7 @@ function ProjectDetailPage() {
                                 </Button>
                             )}
                             {authToken && project.my_status && (
-                                <Chip label={`Your Status: ${project.my_status}`} color="info" />
+                                <Chip label={`Your Status: ${project.my_status.toUpperCase()}`} color="info" />
                             )}
                         </Box>
                         
@@ -88,7 +78,6 @@ function ProjectDetailPage() {
                         
                         <Divider />
 
-                        {/* --- Roles Required Section --- */}
                         <Typography variant="h6" sx={{ mt: 2 }}>
                             Roles Required:
                         </Typography>
@@ -102,7 +91,6 @@ function ProjectDetailPage() {
 
                         <Divider />
 
-                        {/* --- Approved Members Section --- */}
                         <Typography variant="h6" sx={{ mt: 2 }}>Approved Members</Typography>
                         {project.approved_members && project.approved_members.length > 0 ? (
                             <List dense>
@@ -123,7 +111,6 @@ function ProjectDetailPage() {
                             </Typography>
                         )}
                         
-                        {/* --- Owner Info Block --- */}
                         <Box sx={{ mt: 4, display: 'flex', alignItems: 'center' }}>
                             <Avatar src={project.owner_image_url} alt={project.owner} sx={{ mr: 2 }} />
                             <Box>
@@ -132,11 +119,15 @@ function ProjectDetailPage() {
                             </Box>
                         </Box>
 
-                        {/* --- Invite Members Block (for Owner) --- */}
                         {project.is_owner && (
                             <Paper elevation={2} sx={{ p: 2, mt: 4 }}>
                                 <Typography variant="h6" gutterBottom>Invite New Members</Typography>
-                                <UserSearch projectId={projectId} />
+                                <UserSearch projectId={projectId}
+                                            pendingReqs={project.pending_requests}
+                                            sentInvitations={project.sent_invitations}
+                                            onInviteSuccess={fetchProject}
+                                            approvedMembers={project.approved_members}
+                                            rejectedMembers={project.rejected_members} />
                             </Paper>
                         )}
                     </Box>

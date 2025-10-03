@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import api from "./api/api";
-import { Container, Typography, CircularProgress, Box, AppBar, Toolbar, Button, Chip, Avatar } from '@mui/material';
+import api from "../api/api";
+import { Container, Typography, CircularProgress, Box, Button, Chip, Avatar } from '@mui/material';
+import Navbar from "../components/Navbar";
 
 function UserProfilePage() {
     const { userId } = useParams();
@@ -26,7 +27,7 @@ function UserProfilePage() {
 
     return (
         <Box>
-            <AppBar position="static"><Toolbar><Typography variant="h6">CollabHub</Typography></Toolbar></AppBar>
+            <Navbar />
             <Container maxWidth="md" sx={{mt:4}}>
                 <Button onClick={() => navigate(-1)}>&larr; Back </Button>
                 {loading && <CircularProgress sx={{mt:2}} />}

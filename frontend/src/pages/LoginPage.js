@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink, Link } from "react-router-dom";
 import { Container, Box, Typography, TextField,
-         Button, AppBar, Toolbar, Grid, InputAdornment, IconButton } from '@mui/material';
+         Button, Grid, InputAdornment, IconButton } from '@mui/material';
 import {Visibility, VisibilityOff} from '@mui/icons-material';
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "../context/AuthContext";
+import Navbar from '../components/Navbar';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -32,7 +33,7 @@ function LoginPage() {
 
     return (
         <Box>
-            <AppBar position="static"><Toolbar><Typography variant="h6">CollabHub</Typography></Toolbar></AppBar>
+            <Navbar />
             <Container maxWidth="xs">
                 <Box sx={{mt:8, display:'flex', flexDirection:'column', alignItems:'center'}}>
                     <Typography variant="h5" component="h5">

@@ -13,6 +13,15 @@ export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const refreshUser = async () => {
+        try {
+            const response = await api.get('/auth/user/');
+            setUser(response.data)
+        } catch (err) {
+            console.error("Failed to refresh user", err)
+        }
+    }
+
     useEffect(() => {
         if (authToken) {
             api.get('auth/user/')
@@ -45,7 +54,7 @@ export const AuthProvider = ({children}) => {
         setUser(null);
     };
 
-    const value = { authToken, user, login, logout};
+    const value = { authToken, user, loading, login, logout, refreshUser};
 
     return (
         <AuthContext.Provider value={value}>

@@ -5,27 +5,10 @@ import { List, ListItem, ListItemText, Typography, CircularProgress, Button, Box
  } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-function MyInvitationsList() {
-    const [invitations, setInvitations] = useState([]);
-    const [loading, setLoading] = useState(true);
+function MyInvitationsList({initialInvitations, onActionSuccess, loading}) {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [selectedAction, setSelectedAction] = useState(null);
-
-    const fetchInvitations = async () => {
-        try {
-            const response = await api.get('/projects/my_invitations/');
-            setInvitations(response.data);
-        } catch (err) {
-            console.error("Failed to load invitations", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchInvitations();
-    }, []);
 
     const handleOpenDialog = (invitationId, newStatus) => {
         setSelectedAction({id: invitationId, status: newStatus});
@@ -43,10 +26,10 @@ function MyInvitationsList() {
         try {
             await api.patch(`/team-members/${id}/respond/`, {status: status});
             alert(`You have ${status} this invitation`);
-            handleCloseDialog();
-            fetchInvitations();
+            onActionSuccess();
         } catch (error) {
             alert(`Error: ${error.response?.data?.detail || 'Could not respond'}`);
+        } finally {
             handleCloseDialog();
         }
     };
@@ -55,9 +38,9 @@ function MyInvitationsList() {
     return (
         <Box>
             <Typography variant="h5" gutterBottom>Pending Invitations</Typography>
-            {invitations.length > 0 ? (
+            {initialInvitations.length > 0 ? (
                 <List>
-                    {invitations.map(project => (
+                    {initialInvitations.map(project => (
                         <ListItem
                             key={project.my_application_id}
                             secondaryAction={
@@ -74,7 +57,7 @@ function MyInvitationsList() {
                                 <ListItemText
                                     primary={project.title}
                                     secondary={`Invited by: ${project.owner}`}
-                                    onClick={() => `/projects/${project.url.split('/').filter(Boolean).pop()}`}
+                                    onClick={() => navigate(`/projects/${project.url.split('/').filter(Boolean).pop()}`)}
                                     sx={{cursor: 'pointer'}}
                                 />
                             </ListItem>

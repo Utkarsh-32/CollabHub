@@ -1,19 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Container, Typography, AppBar, 
-        Toolbar, Tabs, Tab, Button } from '@mui/material';
+        Toolbar, Tabs, Tab, Button, 
+        Avatar, Badge,
+        CircularProgress} from '@mui/material';
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MyProjectsList from "../components/MyProjectsList";
 import MyApplicationsList from "../components/MyApplicationList";
 import MyInvitationsList from "../components/MyInvitationsList";
+import api from "../api/api";
+import Navbar from "../components/Navbar";
 
 function DashboardPage() {
     const { user, logout} = useAuth();
     const [tabValue, setTabValue] = useState(0);
+    const [dashboardData, setDashboardData] = useState({invitations: []});
+    const [loading, setLoading] = useState(true);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
+
+    const fetchDashboardData = async () => {
+        if (loading) {
+            try {
+                const inviteRes = await api.get('/projects/my_invitations/');
+                setDashboardData({invitations: inviteRes.data});
+            } catch (err) {
+                console.error("Failed to load dashboard data", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [])
+
+    if (loading && !user) {
+        return (
+            <Box>
+                <Navbar />
+                <CircularProgress sx={{display:'block', margin:'auto', mt:4}} />
+            </Box>
+        )
+    }
 
     return (
         <Box>
@@ -27,15 +59,24 @@ function DashboardPage() {
                 </Toolbar>
             </AppBar>
             <Container maxWidth="lg" sx={{mt: 4}}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Your Dashboard
-                </Typography>
                 {user && (
-                    <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                        <Typography variant="h6" sx={{mb: 2}}>
-                            Welcome, {user.display_name || user.username}!
-                        </Typography>
-                        <Button component={RouterLink} to="/profile/edit" variant="outlined">
+                    <Box sx={{display:'flex', 
+                            alignItems:'center', 
+                            mb:4, justifyContent: 'space-between',
+                            p: 2, bgcolor: 'background.paper',
+                            borderRadius: 2}}>
+                        <Box sx={{display: 'flex', alignItems:'center'}}>
+                        <Avatar src={user.image} alt={user.display_name} sx={{width: 56, height: 56, mr: 3}} />
+                        <Box>
+                            <Typography variant="h5">
+                                Welcome, {user.display_name || user.username}!
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                Manage your projects and applications below.
+                            </Typography>
+                        </Box>
+                        </Box>
+                        <Button component={RouterLink} to="/profile/edit" variant="outlined" sx={{ml: 3}}>
                             Edit Profile
                         </Button>
                     </Box>
@@ -44,7 +85,11 @@ function DashboardPage() {
                     <Tabs value={tabValue} onChange={handleTabChange} aria-label="dashboard tabs">
                         <Tab label="My projects" />
                         <Tab label="My applications" />
-                        <Tab label="My invitations" />
+                        <Tab label={
+                            <Badge badgeContent={dashboardData.invitations.length} color="error">
+                                My Invitations
+                            </Badge>
+                        } />
                     </Tabs>
                 </Box>
                 {tabValue === 0 && (
@@ -62,7 +107,7 @@ function DashboardPage() {
                 )}
                 {tabValue === 2 && (
                     <Box sx={{p: 3}}>
-                        <MyInvitationsList />
+                        <MyInvitationsList initialInvitations={dashboardData.invitations} onActionSuccess={fetchDashboardData} loading={loading}/>
                     </Box>
                 )}
             </Container>

@@ -45,7 +45,7 @@ function UserProfilePage() {
                     <Box sx={{mt:3}}>
                         <Typography variant="h6">Skills:</Typography>
                         <Box sx={{display:'flex', flexWrap:'wrap', gap:1, mt:1}}>
-                            {user.skills.split(',').map((skill, index) => (
+                            {user.skills.split(',').filter(skill => skill.trim() !== '').map((skill, index) => (
                                 <Chip key={index} label={skill.trim()} />
                             ))}
                         </Box>

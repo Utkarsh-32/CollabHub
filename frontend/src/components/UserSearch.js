@@ -92,7 +92,7 @@ function UserSearch({ projectId, pendingReqs, sentInvitations,  onInviteSuccess,
                                                 @{user.username}
                                             </Typography>
                                             <Box component="div" sx={{ mt: 1 }}>
-                                                {user.skills && user.skills.split(',').map((skill, index) => (
+                                                {user.skills && user.skills.split(',').filter(skill => skill.trim() !== '').map((skill, index) => (
                                                     <Chip key={index} label={skill.trim()} size='small' sx={{ mr: 0.5, mb: 0.5 }} />
                                                 ))}
                                             </Box>

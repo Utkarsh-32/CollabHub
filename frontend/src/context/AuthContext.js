@@ -1,64 +1,77 @@
-import { createContext, useState, useContext, useEffect } from "react";
-import axios from "axios";
-import api from "../api/api";
+import { createContext, useState, useContext, useEffect } from 'react';
+import api from '../api/api';
+import axios from 'axios';
 
 const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-}
-
-export const AuthProvider = ({children}) => {
-    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const refreshUser = async () => {
         try {
             const response = await api.get('/auth/user/');
-            setUser(response.data)
-        } catch (err) {
-            console.error("Failed to refresh user", err)
+            setUser(response.data);
+        } catch (error) {
+            setUser(null);
         }
-    }
-
-    useEffect(() => {
-        if (authToken) {
-            api.get('auth/user/')
-                .then(response => { setUser(response.data);})
-                .catch(() => {
-                    localStorage.removeItem('authToken');
-                    setAuthToken(null);
-                    setUser(null);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
-    }, [authToken]);
+    };
 
     const login = async (username, password) => {
-        const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
-            username, password,
-        });
-        const token = response.data.key;
-        localStorage.setItem('authToken', token);
-        setAuthToken(token);
-        return response;
-    }
+        const response = await axios.post('http://localhost:8000/api/auth/login/', { username, password });
+        localStorage.setItem('accessToken', response.data.access);
+        localStorage.setItem('refreshToken', response.data.refresh);
+        await refreshUser();
+    };
 
-    const logout = () => {
-        localStorage.removeItem('authToken');
-        delete axios.defaults.headers.common['Authorization'];
-        setAuthToken(null);
+    const logout = async () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        delete api.defaults.headers.common['Authorization'];
         setUser(null);
     };
 
-    const value = { authToken, user, loading, login, logout, refreshUser};
+    const loginWithSocial = (accessToken, refreshToken) => {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        refreshUser(); 
+    };
+
+    useEffect(() => {
+        const intializeAuth = async () => {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                try {
+                    await refreshUser();
+                } catch (e) {
+                    console.error("Initial Auth failed, attempting refresh");
+                    try {
+                        const refreshToken = localStorage.getItem('refreshToken');
+                        const response = await axios.post('http://localhost:8000/api/auth/token/refresh/', {
+                            refresh: refreshToken,
+                        });
+                        const newAccessToken = response.data.access;
+                        localStorage.setItem('accessToken', newAccessToken);
+                        api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+                        await refreshUser();
+                    } catch (refreshError) {
+                        logout();
+                    }
+                }
+            }
+            setLoading(false)
+        };
+        intializeAuth();
+    }, []);
+
+    const value = { user, loading, login, logout, refreshUser, loginWithSocial };
 
     return (
         <AuthContext.Provider value={value}>
             {!loading && children}
         </AuthContext.Provider>
-    )
-}
+    );
+};

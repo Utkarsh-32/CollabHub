@@ -3,7 +3,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-    const { authToken, logout } = useAuth();
+    const { user, logout } = useAuth();
 
     return (
         <AppBar position="static">
@@ -11,7 +11,7 @@ function Navbar() {
                 <Typography variant="h6" component={RouterLink} to="/" sx={{flexGrow:1, color:'inherit', textDecoration:'none'}}>
                     CollabHub
                 </Typography>
-                {authToken ? (
+                {user ? (
                     <>
                     <Button color="inherit" component={RouterLink} to="/dashboard" sx={{mr: 3}}>
                         Dashboard

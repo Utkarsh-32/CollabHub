@@ -9,6 +9,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardPage from "./pages/DashboardPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import EditProfilePage from "./pages/EditProfilePage";
+import EditProjectPage from "./pages/EditProjectPage";
+import GitHubCallback from "./pages/GitHubCallback";
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
         <Route path="/projects/new" element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>} />
         <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+        <Route path="/projects/:projectId/edit" element={<ProtectedRoute><EditProjectPage /></ProtectedRoute>} />
+        <Route path="/social/github/callback/" element={<GitHubCallback />} />
     </Routes>
     );
 }

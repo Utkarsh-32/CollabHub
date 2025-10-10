@@ -19,6 +19,23 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenVerifyView
+from dj_rest_auth.jwt_auth import get_refresh_view
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.http import HttpResponseRedirect
+from rest_framework_simplejwt.tokens import RefreshToken
+
+    
+def github_login_redirect(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('http://localhost:3000/login')
+    refresh = RefreshToken.for_user(request.user)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+    redirect_url = f'http://localhost:3000/social/github/callback/?access={access_token}&refresh={refresh_token}'
+    return HttpResponseRedirect(redirect_url)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +43,10 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('api/auth/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('api/auth/token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
+    path('api/auth/github/redirect/', github_login_redirect, name="github_login_redirect"),
+    path('accounts/', include('allauth.urls'))
 ]
 
 if settings.DEBUG:

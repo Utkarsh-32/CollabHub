@@ -78,11 +78,10 @@ function UserSearch({ projectId, pendingReqs, sentInvitations,  onInviteSuccess,
                                 )
                             }
                         >
-                            <RouterLink to={`/users/${user.id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center" }}>
+                            <RouterLink to={`/users/${user.id}/`} style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center" }}>
                                 <ListItemAvatar>
-                                    <Avatar src={user.image} alt={user.display_name}>
-                                        {user.display_name ? user.display_name.charAt(0).toUpperCase() : '?'}
-                                    </Avatar>
+                                    <Avatar src={user.image_url} alt={user.display_name} />
+                        
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={user.display_name}

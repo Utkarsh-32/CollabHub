@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link as RouterLink, Link } from "react-router-dom";
 import { Container, Box, Typography, TextField,
-         Button, Grid, InputAdornment, IconButton } from '@mui/material';
+         Button, Grid, InputAdornment, IconButton, 
+         Divider} from '@mui/material';
 import {Visibility, VisibilityOff} from '@mui/icons-material';
 import { useAuth } from "../context/AuthContext";
 import Navbar from '../components/Navbar';
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const { login } = useAuth();
+    const { user, login } = useAuth();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
+
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -84,6 +92,18 @@ function LoginPage() {
                         <Button type="submit" fullWidth variant="contained" sx={{mt: 3, mb: 2}}>
                             Login
                         </Button>
+                    </Box>
+                    <Divider sx={{ width: '100%', my: 2 }}> OR </Divider>
+                        <Button 
+                            component="a"
+                            href="http://localhost:8000/accounts/github/login/"
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<GitHubIcon />}
+                            sx={{mt:2, mb:2}}
+                        >
+                            Continue with GitHub
+                        </Button>
                         <Grid container justifyContent='flex-end'>
                             <Grid item>
                                 <Link component={RouterLink} to="/register" variant="body2">
@@ -91,7 +111,6 @@ function LoginPage() {
                                 </Link>
                             </Grid>
                         </Grid>
-                    </Box>
                 </Box>
             </Container>
         </Box>

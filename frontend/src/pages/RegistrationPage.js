@@ -2,8 +2,10 @@ import { useState } from "react";
 import axios from 'axios';
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { Container, Box, Typography, TextField, 
-        Button, AppBar, Toolbar, Grid, Link, InputAdornment, IconButton } from '@mui/material';
+        Button, AppBar, Toolbar, Grid, Link, InputAdornment, IconButton, 
+        Divider} from '@mui/material';
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 function RegistrationPage() {
     const [username, setUsername] = useState('');
@@ -106,6 +108,17 @@ function RegistrationPage() {
                         {error && <Typography color="error" align="center">{error}</Typography>}
                         <Button type="submit" fullWidth variant="contained" sx={{mt:3, mb:2}}>
                             Sign Up
+                        </Button>
+                        <Divider> OR </Divider>
+                        <Button 
+                            component="a"
+                            href="http://localhost:8000/accounts/github/login/"
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<GitHubIcon />}
+                            sx={{mt:2, mb:2}}
+                        >
+                            Sign Up with GitHub
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>

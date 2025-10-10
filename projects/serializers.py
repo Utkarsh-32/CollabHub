@@ -19,14 +19,39 @@ class OwnerProjectSerializer(serializers.HyperlinkedModelSerializer):
         model = Projects
         fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'pending_requests','rejected_members', 'sent_invitations', 'is_owner']
     def get_approved_members(self, obj):
-        accepted = obj.team_members.filter(status='approved').exclude(member=obj.owner)
-        return [{'id': acc.member.id, 'display_name': acc.member.display_name, 'image_url': acc.member.image.url} for acc in accepted]
+        approved = obj.team_members.filter(status='approved').exclude(member=obj.owner)
+        request = self.context.get('request')
+        members_data = []
+        for tm in approved:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if tm.member.image and hasattr(tm.member.image, 'url') and 'default.jpg' not in tm.member.image.url:
+                image_url = request.build_absolute_uri(tm.member.image.url)
+            members_data.append({
+                'id': tm.member.id,
+                'display_name': tm.member.display_name,
+                'image_url': image_url
+            })
+        return members_data
     def get_pending_requests(self, obj):
         requests = obj.team_members.filter(status='pending').exclude(member=obj.owner)
-        return [{'id': req.id, 'member_id': req.member.id ,'display_name': req.member.display_name, 'image_url': req.member.image.url} for req in requests]
+        request = self.context.get('request')
+        requests_data = []
+        for req in requests:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if req.member.image and hasattr(req.member.image, 'url') and 'default.jpg' not in req.member.image.url:
+                image_url = request.build_absolute_uri(req.member.image.url)
+            requests_data.append({'id': req.id, 'member_id': req.member.id ,'display_name': req.member.display_name, 'image_url': image_url})
+        return requests_data
     def get_sent_invitations(self, obj):
         invitations = obj.team_members.filter(status='invited')
-        return [{'id': inv.id, 'member_id': inv.member.id ,'display_name': inv.member.display_name, 'image_url': inv.member.image.url} for inv in invitations]
+        request = self.context.get('request')
+        invitations_data = []
+        for inv in invitations:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if inv.member.image and hasattr(inv.member.image, 'url') and 'default.jpg' not in inv.member.image.url:
+                image_url = request.build_absolute_uri(inv.member.image.url)
+            invitations_data.append({'id': inv.id, 'member_id': inv.member.id ,'display_name': inv.member.display_name, 'image_url': image_url})
+        return invitations_data
     def create(self, validated_data):
         roles_data = validated_data.pop('roles_required', [])
         project = Projects.objects.create(**validated_data)
@@ -45,15 +70,22 @@ class OwnerProjectSerializer(serializers.HyperlinkedModelSerializer):
         return instance
     def get_owner_image_url(self, obj):
         request = self.context.get('request')
-        if obj.owner.image:
+        if obj.owner.image and hasattr(obj.owner.image, 'url') and 'default.jpg' not in obj.owner.image.url:
             return request.build_absolute_uri(obj.owner.image.url)
-        return None
+        return request.build_absolute_uri('/media/default.jpg')
     def get_is_owner(self, obj):
         user = self.context['request'].user
         return obj.owner == user
     def get_rejected_members(self, obj):
-        requests = obj.team_members.filter(status='rejected')
-        return [{'id': req.id, 'display_name': req.member.display_name, 'image_url': req.member.image.url} for req in requests]
+        request = self.context.get('request')
+        rejected = obj.team_members.filter(status='rejected')
+        rejected_data = []
+        for rej in rejected:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if rej.member.image and hasattr(rej.member.image, 'url') and 'default.jpg' not in rej.member.image.url:
+                image_url = request.build_absolute_uri(rej.member.image.url)
+            rejected_data.append({'id': rej.member.id, 'display_name': rej.member.display_name, 'image_url': image_url})
+        return rejected_data
     
     
 class ApplicantProjectSerializer(serializers.ModelSerializer):
@@ -69,7 +101,18 @@ class ApplicantProjectSerializer(serializers.ModelSerializer):
         fields = ['url', 'title', 'description','roles_required', 'owner', 'owner_image_url', 'approved_members', 'my_status', 'my_application_id', 'is_owner']
     def get_approved_members(self, obj):
         approved = obj.team_members.filter(status='approved').exclude(member=obj.owner)
-        return [{'id': tm.member.id, 'display_name': tm.member.display_name, 'image_url': tm.member.image.url} for tm in approved]
+        request = self.context.get('request')
+        members_data = []
+        for tm in approved:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if tm.member.image and hasattr(tm.member.image, 'url') and 'default.jpg' not in tm.member.image.url:
+                image_url = request.build_absolute_uri(tm.member.image.url)
+            members_data.append({
+                'id': tm.member.id,
+                'display_name': tm.member.display_name,
+                'image_url': image_url
+            })
+        return members_data
     def get_my_status(self, obj):
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -90,9 +133,9 @@ class ApplicantProjectSerializer(serializers.ModelSerializer):
             return None
     def get_owner_image_url(self, obj):
         request = self.context.get('request')
-        if obj.owner.image:
+        if obj.owner.image and hasattr(obj.owner.image, 'url') and 'default.jpg' not in obj.owner.image.url:
             return request.build_absolute_uri(obj.owner.image.url)
-        return None
+        return request.build_absolute_uri('/media/default.jpg')
     def get_is_owner(self, obj):
         user = self.context['request'].user
         return obj.owner == user
@@ -108,12 +151,23 @@ class PublicProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'url', 'title', 'description','roles_required', 'owner','owner_image_url', 'approved_members', 'is_owner']
     def get_approved_members(self, obj):
         approved = obj.team_members.filter(status='approved').exclude(member=obj.owner)
-        return [{'id': tm.member.id, 'display_name': tm.member.display_name, 'image_url': tm.member.image.url} for tm in approved]
+        request = self.context.get('request')
+        members_data = []
+        for tm in approved:
+            image_url = request.build_absolute_uri('/media/default.jpg')
+            if tm.member.image and hasattr(tm.member.image, 'url') and 'default.jpg' not in tm.member.image.url:
+                image_url = request.build_absolute_uri(tm.member.image.url)
+            members_data.append({
+                'id': tm.member.id,
+                'display_name': tm.member.display_name,
+                'image_url': image_url
+            })
+        return members_data
     def get_owner_image_url(self, obj):
         request = self.context.get('request')
-        if obj.owner.image:
+        if obj.owner.image and hasattr(obj.owner.image, 'url') and 'default.jpg' not in obj.owner.image.url:
             return request.build_absolute_uri(obj.owner.image.url)
-        return None
+        return request.build_absolute_uri('/media/default.jpg')
     def get_is_owner(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
@@ -148,7 +202,7 @@ class MessageSerializer(serializers.ModelSerializer):
         read_only_fields = ['author', 'project']
     def get_author_image_url(self, obj):
         request = self.context.get('request')
-        if obj.author.image:
+        if obj.author.image and hasattr(obj.author.image, 'url') and 'default.jpg' not in obj.author.image.url:
             return request.build_absolute_uri(obj.author.image.url)
-        return None
+        return request.build_absolute_uri('/media/default.jpg')
     

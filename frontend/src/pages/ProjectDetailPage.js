@@ -14,7 +14,7 @@ import MessageBoard from "../components/MessageBoard";
 
 function ProjectDetailPage() {
     const { projectId } = useParams();
-    const { authToken } = useAuth();
+    const { user } = useAuth();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -108,16 +108,21 @@ function ProjectDetailPage() {
                                 {project.title}
                             </Typography>
                             {project.is_owner && (
-                                <Button variant="outlined" color="error" onClick={() => setOpen(true)}>
-                                    Delete Project
-                                </Button>
+                                <Stack direction="row" spacing={1}>
+                                    <Button variant="outlined" component={RouterLink} to={`/projects/${projectId}/edit/`}>
+                                        Edit Project
+                                    </Button>
+                                    <Button variant="outlined" color="error" onClick={() => setOpen(true)}>
+                                        Delete Project
+                                    </Button>
+                                </Stack>
                             )}
-                            {authToken && !project.is_owner && !project.my_status && (
+                            {user && !project.is_owner && !project.my_status && (
                                 <Button variant="contained" color="primary" onClick={handleApply}>
                                     Apply to Join
                                 </Button>
                             )}
-                            {authToken && project.my_status && (
+                            {user && project.my_status && (
                                 <Chip label={`Your Status: ${project.my_status.toUpperCase()}`} color="info" />
                             )}
                         </Box>

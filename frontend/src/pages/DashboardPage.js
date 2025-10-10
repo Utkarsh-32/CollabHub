@@ -14,29 +14,26 @@ import Navbar from "../components/Navbar";
 function DashboardPage() {
     const { user, logout} = useAuth();
     const [tabValue, setTabValue] = useState(0);
-    const [dashboardData, setDashboardData] = useState({invitations: []});
     const [loading, setLoading] = useState(true);
+    const [invitation, setInvitation] = useState([]);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
 
-    const fetchDashboardData = async () => {
-        if (loading) {
-            try {
-                const inviteRes = await api.get('/projects/my_invitations/');
-                setDashboardData({invitations: inviteRes.data});
-            } catch (err) {
-                console.error("Failed to load dashboard data", err);
-            } finally {
-                setLoading(false);
-            }
+    const handleInvitations = async () => {
+        setLoading(true);
+        try {
+            const response = await api.get("/projects/my_invitations/");
+            setInvitation(response.data);
+        } finally {
+            setLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
-        fetchDashboardData();
-    }, [])
+        handleInvitations();
+    }, []);
 
     if (loading && !user) {
         return (
@@ -66,7 +63,7 @@ function DashboardPage() {
                             p: 2, bgcolor: 'background.paper',
                             borderRadius: 2}}>
                         <Box sx={{display: 'flex', alignItems:'center'}}>
-                        <Avatar src={user.image} alt={user.display_name} sx={{width: 56, height: 56, mr: 3}} />
+                        <Avatar src={user.image_url} alt={user.display_name} sx={{width: 56, height: 56, mr: 3}} />
                         <Box>
                             <Typography variant="h5">
                                 Welcome, {user.display_name || user.username}!
@@ -86,7 +83,7 @@ function DashboardPage() {
                         <Tab label="My projects" />
                         <Tab label="My applications" />
                         <Tab label={
-                            <Badge badgeContent={dashboardData.invitations.length} color="error">
+                            <Badge badgeContent={invitation.length} color="error">
                                 My Invitations
                             </Badge>
                         } />
@@ -107,7 +104,7 @@ function DashboardPage() {
                 )}
                 {tabValue === 2 && (
                     <Box sx={{p: 3}}>
-                        <MyInvitationsList initialInvitations={dashboardData.invitations} onActionSuccess={fetchDashboardData} loading={loading}/>
+                        <MyInvitationsList initialInvitations={invitation} onActionSuccess={handleInvitations} loading={loading}/>
                     </Box>
                 )}
             </Container>

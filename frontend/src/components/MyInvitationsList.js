@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "../api/api";
 import { List, ListItem, ListItemText, Typography, CircularProgress, Button, Box,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
  } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function MyInvitationsList({initialInvitations, onActionSuccess, loading}) {
     const navigate = useNavigate();

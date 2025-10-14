@@ -54,6 +54,7 @@ function ProjectDetailPage() {
         }
     };
 
+
     useEffect(() => {
         fetchProject();
     }, [projectId]);

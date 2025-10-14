@@ -188,7 +188,7 @@ REST_AUTH = {
     'USE_JWT': True,
     'SESSION_LOGIN': False,
     'USER_DETAILS_SERIALIZER': 'users.serializers.UserDetailsSerializer',
-    'REGISTER_SERIALIZER': 'dj_rest_auth.registration.serializers.RegisterSerializer',
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
 }
 
 

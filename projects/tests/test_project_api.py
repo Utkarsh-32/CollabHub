@@ -10,24 +10,25 @@ class ProjectAPItests(APITestCase):
         self.owner = User.objects.create_user(username="owner", password="pass")
         self.user = User.objects.create_user(username="user", password="pass")
         self.project = Projects.objects.create(title="Test project", description="desc", owner=self.owner)
-        self.client.login(username="owner", password="pass")
+        
     
     def test_create_project(self):
+        self.client.force_login(user=self.owner)
         urls = reverse("projects-list")
-        data = {"title": "New Project", "description": "Desc"}
-        response = self.client.post(urls, data)
+        data = {"title": "New Project", "description": "Desc", "roles_required":[]}
+        response = self.client.post(urls, data, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Projects.objects.count(), 2)
     
     def test_apply_project(self):
-        self.client.logout()
-        self.client.login(username="user", password="pass")
+        self.client.force_login(user=self.user)
         url = reverse("projects-apply", kwargs={"pk": self.project.id})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 201)
         self.assertTrue(TeamMembers.objects.filter(project=self.project, member=self.user).exists())
     
     def test_invite_user(self):
+        self.client.force_login(user=self.owner)
         url = reverse("projects-invite", kwargs={"pk": self.project.id})
         response = self.client.post(url, {"username": self.user.username})
         self.assertEqual(response.status_code, 201)

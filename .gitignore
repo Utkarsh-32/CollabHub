@@ -7,3 +7,6 @@ venv/
 media/
 staticfiles/
 .vscode/
+.coverage
+htmlcov/
+*.sqlite3

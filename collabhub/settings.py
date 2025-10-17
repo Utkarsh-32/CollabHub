@@ -210,9 +210,12 @@ LOGIN_REDIRECT_URL = 'https://collabhub-backend-9ox1.onrender.com/api/auth/githu
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
-        'SCOPE' : [
-            'user:email',
-        ],
+        'SCOPE': ['user:email'],
+        'APP': {
+            'client_id': env('GITHUB_CLIENT_ID'),
+            'secret': env('GITHUB_SECRET'),
+            'key': ''
+        }
     }
 }
 

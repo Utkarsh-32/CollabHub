@@ -32,7 +32,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ["collabhub.vercel.app", "collabhub-backend.onrender.com",
+ALLOWED_HOSTS = ["collabhub.vercel.app", "collabhub-backend-9ox1.onrender.com",
                  "localhost", "127.0.0.1"]
 
 
@@ -179,7 +179,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://collabhub.vercel.app",
-    "https://collabhub-backend.onrender.com",
+    "https://collabhub-backend-9ox1.onrender.com",
 ]
 
 
@@ -206,7 +206,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_REDIRECT_URL = 'https://collabhub-backend.onrender.com/api/auth/github/redirect/'
+LOGIN_REDIRECT_URL = 'https://collabhub-backend-9ox1.onrender.com/api/auth/github/redirect/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {

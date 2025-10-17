@@ -17,4 +17,4 @@ RUN chmod +x /app/entrypoint.sh
 EXPOSE 8000
 ENTRYPOINT [ "/app/entrypoint.sh" ]
 
-CMD ["gunicorn", "collabhub.wsgi:application", "--bind", "0.0.0.0:${PORT:-8000}"]
+CMD gunicorn collabhub.wsgi:application --bind 0.0.0.0:$PORT

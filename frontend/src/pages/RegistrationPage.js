@@ -7,6 +7,9 @@ import { Container, Box, Typography, TextField,
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const BACKEND_URL = API_URL.replace('/api', '');
+
 function RegistrationPage() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -32,7 +35,7 @@ function RegistrationPage() {
             return;
         }
         try {
-            await axios.post('http://127.0.0.1:8000/api/auth/registration/', {
+            await axios.post(`${API_URL}/auth/registration/`, {
                 username, email, password1, password2,
             });
             navigate('/login');
@@ -112,7 +115,7 @@ function RegistrationPage() {
                         <Divider> OR </Divider>
                         <Button 
                             component="a"
-                            href="http://localhost:8000/accounts/github/login/"
+                            href={`${BACKEND_URL}/accounts/github/login/`}
                             fullWidth
                             variant="outlined"
                             startIcon={<GitHubIcon />}

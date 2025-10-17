@@ -5,6 +5,8 @@ import axios from 'axios';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -19,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (username, password) => {
-        const response = await axios.post('http://localhost:8000/api/auth/login/', { username, password });
+        const response = await axios.post(`${BASE_URL}/auth/login/`, { username, password });
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         await refreshUser();
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }) => {
                     console.error("Initial Auth failed, attempting refresh");
                     try {
                         const refreshToken = localStorage.getItem('refreshToken');
-                        const response = await axios.post('http://localhost:8000/api/auth/token/refresh/', {
+                        const response = await axios.post(`${BASE_URL}/auth/token/refresh/`, {
                             refresh: refreshToken,
                         });
                         const newAccessToken = response.data.access;

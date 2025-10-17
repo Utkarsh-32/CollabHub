@@ -32,7 +32,8 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["collabhub.vercel.app", "collabhub-backend.onrender.com",
+                 "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -173,12 +174,12 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "https://collabhub.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
+    "https://collabhub.vercel.app",
+    "https://collabhub-backend.onrender.com",
 ]
 
 
@@ -205,7 +206,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_REDIRECT_URL = 'http://localhost:8000/api/auth/github/redirect/'
+LOGIN_REDIRECT_URL = 'https://collabhub-backend.onrender.com/api/auth/github/redirect/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {

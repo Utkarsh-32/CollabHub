@@ -8,6 +8,8 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from '../components/Navbar';
 import GitHubIcon from "@mui/icons-material/GitHub";
 
+const BACKEND_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:8000';
+
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -96,7 +98,7 @@ function LoginPage() {
                     <Divider sx={{ width: '100%', my: 2 }}> OR </Divider>
                         <Button 
                             component="a"
-                            href="http://localhost:8000/accounts/github/login/"
+                            href={`${BACKEND_URL}/accounts/github/login/`}
                             fullWidth
                             variant="outlined"
                             startIcon={<GitHubIcon />}

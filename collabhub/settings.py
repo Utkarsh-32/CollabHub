@@ -19,8 +19,6 @@ AUTH_USER_MODEL = "users.User"
 
 env = environ.Env(DEBUG=(bool, False))
 
-FRONTEND_URL = env('FRONTEND_URL')
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,7 +32,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ["collabhub.vercel.app", "collabhub-backend-9ox1.onrender.com",
+FRONTEND_URL = env('FRONTEND_URL')
+
+ALLOWED_HOSTS = ["collabhub-two.vercel.app", "collabhub-backend-9ox1.onrender.com",
                  "localhost", "127.0.0.1"]
 
 
@@ -208,7 +208,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_REDIRECT_URL = 'https://collabhub-backend-9ox1.onrender.com/api/auth/github/redirect/'
+LOGIN_REDIRECT_URL = f'{FRONTEND_URL}/api/auth/github/redirect/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {

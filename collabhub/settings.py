@@ -176,11 +176,11 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://collabhub.vercel.app",
+    "https://collabhub-two.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://collabhub.vercel.app",
+    "https://collabhub-two.vercel.app",
     "https://collabhub-backend-9ox1.onrender.com",
 ]
 

@@ -208,7 +208,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_REDIRECT_URL = f'{FRONTEND_URL}/api/auth/github/redirect/'
+LOGIN_REDIRECT_URL = 'https://collabhub-backend-9ox1.onrender.com/api/auth/github/redirect/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
